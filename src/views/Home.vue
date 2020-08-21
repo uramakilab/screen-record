@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row justify="space-around" class="mt-3">
-      <v-btn @click="startWebCamCapture">
+      <v-btn @click="!webcam?startWebCamCapture():stopWebCamCapture()">
         <v-icon left>mdi-account</v-icon>Start Camera
       </v-btn>
 
@@ -9,8 +9,12 @@
         <v-icon left color="red">mdi-circle</v-icon>Record
       </v-btn>
 
-      <v-btn @click="startScreenCapture">
+      <v-btn @click="!screen?startScreenCapture():stopScreenCapture()">
         <v-icon left>mdi-monitor</v-icon>Start Screen Share
+      </v-btn>
+
+      <v-btn @click="!audio?startAudioCapture():stopAudioCapture()">
+        <v-icon left>{{audio?'mdi-stop':'mdi-play'}}</v-icon>Start Audio Capture
       </v-btn>
     </v-row>
     <v-row justify="space-around" style="margin-top: 30px">
@@ -18,10 +22,11 @@
 
       <video width="45%" id="screen" class="video" autoplay></video>
 
-       <video v-if="MediaWebCam"  :src="MediaWebCam" width="45%" id="recordWC" class="video" controls></video>
-      <!--<video width="45%" id="record" class="video" controls></video> -->
-      {{recordWebCam}}
-      {{recordScreen}}
+      <audio id="audio" autoplay></audio>
+      <!-- Saved Media  -->
+      <video v-if="mediaWebCam" :src="mediaWebCam" width="45%" id="recordWC" class="video" controls></video>
+      <video v-if="mediaScreen" :src="mediaScreen" width="45%" id="record" class="video" controls></video>
+      <audio v-if="mediaAudio" :src="mediaAudio" id="Recordaudio" controls></audio>
     </v-row>
   </div>
 </template>
@@ -33,16 +38,23 @@ export default {
   components: {},
   data: () => ({
     recording: false,
+    webcam: false,
+    screen: false,
+    audio: false,
     options: {
       video: true,
-      audio: false
+      audio: true
     },
     recordWebCam: null,
     recordScreen: null,
-    MediaWebCam:null
+    recordAudio: null,
+    mediaWebCam: null,
+    mediaScreen: null,
+    mediaAudio: null
   }),
   methods: {
     startWebCamCapture() {
+      this.webcam = true;
       navigator.mediaDevices
         .getUserMedia(this.options)
         .then(mediaStreamObj => {
@@ -62,14 +74,22 @@ export default {
           this.recordWebCam.onstop = () => {
             let blob = new Blob(recordingWebCam, { type: "video/mp4;" });
             recordingWebCam = [];
-            this.MediaWebCam = window.URL.createObjectURL(blob);            
+            this.mediaWebCam = window.URL.createObjectURL(blob);
           };
         })
         .catch(err => {
           console.error("Error:" + err);
         });
     },
+    stopWebCamCapture() {
+      this.webcam = false;
+      let videoElem = document.getElementById("webcam");
+      let tracks = videoElem.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      videoElem.srcObject = null;
+    },
     startScreenCapture() {
+      this.screen = true;
       navigator.mediaDevices
         .getDisplayMedia(this.options)
         .then(mediaStreamObj => {
@@ -89,13 +109,59 @@ export default {
           this.recordScreen.onstop = () => {
             let blob = new Blob(recordingScreen, { type: "video/mp4;" });
             recordingScreen = [];
-            this.recordScreen = window.URL.createObjectURL(blob);
+            this.mediaScreen = window.URL.createObjectURL(blob);
           };
         })
         .catch(err => {
           console.error("Error:" + err);
           return null;
         });
+    },
+    stopScreenCapture() {
+      this.screen = false;
+      let videoElem = document.getElementById("screen");
+      let tracks = videoElem.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      videoElem.srcObject = null;
+    },
+    startAudioCapture() {
+      this.audio = true;
+      let audioOptions = {
+        video: false,
+        audio: true
+      };
+      navigator.mediaDevices
+        .getUserMedia(audioOptions)
+        .then(mediaStreamObj => {
+          let video = document.getElementById("audio");
+          if ("srcObject" in video) {
+            video.srcObject = mediaStreamObj;
+          } else {
+            video.src = window.URL.createObjectURL(mediaStreamObj);
+          }
+          this.recordAudio = new MediaRecorder(mediaStreamObj);
+          let recordingAudio = [];
+
+          this.recordAudio.ondataavailable = function(ev) {
+            recordingAudio.push(ev.data);
+          };
+
+          this.recordAudio.onstop = () => {
+            let blob = new Blob(recordingAudio, { type: "audio/mp3;" });
+            recordingAudio = [];
+            this.mediaAudio = window.URL.createObjectURL(blob);
+          };
+        })
+        .catch(err => {
+          console.error("Error:" + err);
+        });
+    },
+    stopAudioCapture() {
+      this.audio = false;
+      let AudioEle = document.getElementById("audio");
+      let tracks = AudioEle.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      AudioEle.srcObject = null;
     },
     startRecord() {
       console.log("Recording....");
@@ -106,6 +172,9 @@ export default {
       if (this.recordWebCam) {
         this.recordWebCam.start();
       }
+      if (this.recordAudio) {
+        this.recordAudio.start();
+      }
     },
     stopRecord() {
       console.log("Stop Record");
@@ -115,6 +184,9 @@ export default {
       }
       if (this.recordWebCam) {
         this.recordWebCam.stop();
+      }
+      if (this.recordAudio) {
+        this.recordAudio.stop();
       }
     }
   }
