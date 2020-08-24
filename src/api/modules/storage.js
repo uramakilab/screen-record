@@ -9,23 +9,16 @@ export default {
         return uploadTask
     },
     getObject: async (payload) => {
+        var axios = require('axios')
         var storage = firebase.storage();
-        let url = await storage.ref(`${payload.folder}/${payload.name}.${payload.extension}`).getDownloadURL().then((url) => {
-            var xhr = new XMLHttpRequest();
-            var blob = null;
-            xhr.responseType = 'blob';
-            xhr.onload = function () {
-                blob = xhr.response;
-                console.log("storage", blob)
-            };
-            xhr.open('GET', url);
-            xhr.send();
-            // return url;
+        let url = await storage.ref(`${payload.folder}/${payload.name}.${payload.extension}`).getDownloadURL().then(async (url) => {
+            return await axios.get(url, {
+                responseType: 'blob',
+                timeout: 30000,
+            }).then(res => res.data)
         }).catch(err => {
             console.error(err);
         });
-
-        console.log("url", url)
         return url;
     }
 }

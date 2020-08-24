@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <video :src="videoURL" controls width="800" /> -->
+    <video :src="videoURL" controls width="800" />
     {{videoURL}}
   </div>
 </template>
