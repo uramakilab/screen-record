@@ -1,11 +1,15 @@
 export default {
     state: {
         media: null,
-        videoURL: null
+        videoURL: null,
+        list: null
     },
     mutations: {
         setVideoURL(state, payload) {
             state.videoURL = payload;
+        },
+        setList(state, payload) {
+            state.list = payload
         }
     },
     getters: {
@@ -28,6 +32,15 @@ export default {
             dispatch("getObject", payload)
                 .then((url) => {
                     commit('setVideoURL', url);
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        },
+        getListVideos({ dispatch, commit }, payload) {
+            dispatch("getList", payload)
+                .then((list) => {
+                    commit('setList', list);
                 })
                 .catch(err => {
                     console.error(err);
