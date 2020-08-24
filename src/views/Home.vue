@@ -186,7 +186,7 @@ export default {
           this.recordScreen.onstop = () => {
             let blob = new Blob(recordingScreen, { type: "video/mp4;" });
             recordingScreen = [];
-            this.uploadMedia = blob
+            this.uploadMedia = {blob:blob,name:mediaStreamObj.id}
             this.mediaScreen = window.URL.createObjectURL(blob);
           };
         })
@@ -269,8 +269,8 @@ export default {
     },
     submit() {
       this.$store.dispatch("uploadVideo", {
-        media: this.uploadMedia,
-        name: ''
+        media: this.uploadMedia.blob,
+        name: this.uploadMedia.name
       });
     }
   }
