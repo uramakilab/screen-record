@@ -1,6 +1,7 @@
 <template>
   <div>
-    <video :src="videoURL" controls width="800" />
+    <!-- <video :src="videoURL" controls width="800" /> -->
+    {{videoURL}}
   </div>
 </template>
 
@@ -47,11 +48,16 @@ export default {
           });
         }
       );
-    },
+    }
   },
   computed:{
     videoURL() {
-      return this.$store.state.mediaRecords.videoURL;
+      if(this.$store.state.mediaRecords.videoBlob) {
+        console.log("nahsdaj");
+        return window.URL.createObjectURL(this.$store.state.mediaRecords.videoBlob);
+      }
+
+      return '';
     }
   },
   created() {

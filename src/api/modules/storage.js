@@ -8,14 +8,24 @@ export default {
 
         return uploadTask
     },
-    getObject: (payload) => {
+    getObject: async (payload) => {
         var storage = firebase.storage();
-        let url = storage.ref(`${payload.folder}/${payload.name}.${payload.extension}`).getDownloadURL().then((url) => {
-            return url;
+        let url = await storage.ref(`${payload.folder}/${payload.name}.${payload.extension}`).getDownloadURL().then((url) => {
+            var xhr = new XMLHttpRequest();
+            var blob = null;
+            xhr.responseType = 'blob';
+            xhr.onload = function () {
+                blob = xhr.response;
+                console.log("storage", blob)
+            };
+            xhr.open('GET', url);
+            xhr.send();
+            // return url;
         }).catch(err => {
             console.error(err);
         });
 
-        return url
+        console.log("url", url)
+        return url;
     }
 }

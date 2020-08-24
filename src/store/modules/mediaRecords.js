@@ -1,11 +1,11 @@
 export default {
     state: {
         media: null,
-        videoURL: null
+        videoBlob: null
     },
     mutations: {
-        setVideoURL(state, payload) {
-            state.videoURL = payload;
+        setVideoBlob(state, payload) {
+            state.videoBlob = payload;
         }
     },
     getters: {
@@ -26,8 +26,8 @@ export default {
             payload = Object.assign(payload, { folder: 'videos', extension: 'mp4' });
 
             dispatch("getObject", payload)
-                .then((url) => {
-                    commit('setVideoURL', url);
+                .then((blob) => {
+                    commit('setVideoBlob', blob);
                 })
                 .catch(err => {
                     console.error(err);

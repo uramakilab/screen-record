@@ -12,8 +12,9 @@ export default {
         },
         async getObject(_, payload) {
             try {
-                var url = await api.storage.getObject(payload);
-                return url;
+                var blob = await api.storage.getObject(payload);
+                console.log("db", blob)
+                return blob;
             } catch (err) {
                 console.error(err);
             }
