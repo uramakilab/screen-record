@@ -1,11 +1,15 @@
 export default {
     state: {
         media: null,
-        videoBlob: null
+        videoBlob: null,
+        list: null
     },
     mutations: {
         setVideoBlob(state, payload) {
             state.videoBlob = payload;
+        },
+        setList(state, payload) {
+            state.list = payload
         }
     },
     getters: {
@@ -28,6 +32,15 @@ export default {
             dispatch("getObject", payload)
                 .then((blob) => {
                     commit('setVideoBlob', blob);
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        },
+        getListVideos({ dispatch, commit }, payload) {
+            dispatch("getList", payload)
+                .then((list) => {
+                    commit('setList', list);
                 })
                 .catch(err => {
                     console.error(err);

@@ -17,6 +17,14 @@ export default {
             } catch (err) {
                 console.error(err);
             }
+        },
+        async getList(_, payload) {
+            try {
+               let list = await api.storage.getList(payload)
+               return list
+            } catch (err) {
+                console.log("Error",err)
+            }
         }
     }
 }
