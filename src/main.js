@@ -5,18 +5,19 @@ import store from './store'
 import firebase from 'firebase/app'
 import vuetify from './plugins/vuetify';
 
+
 const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  storageBucket: process.env.STORAGE_BUCKET,
-  databaseURL: process.env.DB_URL,
-  projectId: process.env.PROJECT_ID,
-  messagingSenderId: process.env.SENDER_ID,
-  appId: process.env.APP_ID
+  apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
+  authDomain: process.env.VUE_APP_FIREBASE_AUTH_DOMAIN,
+  storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
+  databaseURL: process.env.VUE_APP_FIREBASE_DB_URL,
+  projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
+  messagingSenderId: process.env.VUE_APP_FIREBASE_SENDER_ID,
+  appId: process.env.VUE_APP_FIREBASE_APP_ID
 }
 
 firebase.initializeApp(firebaseConfig)
-// var storage = firebase.storage()
+
 
 Vue.config.productionTip = false
 

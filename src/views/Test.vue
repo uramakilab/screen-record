@@ -49,6 +49,7 @@ export default {
 
     onUpload() {
       this.picture = null;
+      
       const storageRef = firebase
         .storage()
         .ref(`${this.imageData.name}`)
