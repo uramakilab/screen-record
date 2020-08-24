@@ -1,27 +1,6 @@
 <template>
   <div>
-    {{imageData}}
-    <div>
-      <p>Upload an image to Firebase:</p>
-      <input type="file" @change="previewImage" accept="image/*" />
-    </div>
-    <div>
-      <p>
-        Progress: {{uploadValue.toFixed()+"%"}}
-        <progress
-          id="progress"
-          :value="uploadValue"
-          max="100"
-        ></progress>
-      </p>
-    </div>
-    <div v-if="imageData!=null">
-      <img class="preview" :src="picture" />
-      <br />
-      <button @click="onUpload">Upload</button>
-    </div>
-
-    <v-btn @click="log()">log</v-btn>
+    <video :src="videoURL" controls width="800" />
   </div>
 </template>
 
@@ -32,9 +11,7 @@ export default {
   name: "Upload",
   data() {
     return {
-      imageData: null,
-      picture: null,
-      uploadValue: 0,
+      uploadValue: 0
     };
   },
   methods: {
@@ -72,5 +49,15 @@ export default {
       );
     },
   },
+  computed:{
+    videoURL() {
+      return this.$store.state.mediaRecords.videoURL;
+    }
+  },
+  created() {
+    if(!this.$store.state.mediaRecords.video) {
+      this.$store.dispatch("getVideo", {name: 'ttlCZ0N6Gfx2We5nr3FdsEteIh3Yp4CzZpfE'})
+    }
+  }
 };
 </script>

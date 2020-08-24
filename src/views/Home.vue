@@ -268,9 +268,10 @@ export default {
       }
     },
     submit() {
-      this.$store.dispatch("uploadVideo", {
+      this.$store.dispatch("uploadMedia", {
         media: this.uploadMedia.blob,
-        name: this.uploadMedia.name
+        name: this.uploadMedia.name,
+        folder: 'videos'
       });
     }
   }
