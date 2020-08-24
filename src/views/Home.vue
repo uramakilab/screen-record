@@ -212,7 +212,7 @@ export default {
           };
 
           this.recordAudio.onstop = () => {
-            let blob = new Blob(recordingAudio, { type: "audio/mp3;" });
+            let blob = new Blob(recordingAudio, { type: "audio/mp4;" });
             recordingAudio = [];
 
             this.uploadMediaAudio = { blob: blob, name: mediaStreamObj.id };
