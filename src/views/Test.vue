@@ -4,8 +4,27 @@
       <v-col cols="3">
         <v-list>
           <v-subheader>My videos</v-subheader>
-          <v-list-item-group v-model="select" color="primary">
-            <v-list-item @click="getvideo(item)" v-for="(item, i) in list" :key="i">
+          <v-list-item-group v-model="selectVideo" color="primary">
+            <v-list-item
+              @click="getvideo(item), selectAudio =null"
+              v-for="(item, i) in listVideos"
+              :key="i"
+            >
+              <v-list-item-content>
+                <v-list-item-title v-text="item.name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+        <v-divider></v-divider>
+        <v-list>
+          <v-subheader>My audios</v-subheader>
+          <v-list-item-group v-model="selectAudio" color="primary">
+            <v-list-item
+              @click="getAudio(item), selectVideo = null"
+              v-for="(item, i) in listAudios"
+              :key="i"
+            >
               <v-list-item-content>
                 <v-list-item-title v-text="item.name"></v-list-item-title>
               </v-list-item-content>
@@ -14,7 +33,8 @@
         </v-list>
       </v-col>
       <v-col>
-        <video v-if="videoURL" :src="videoURL" controls width="800" />
+        <video v-if="videoURL && selectVideo != null" :src="videoURL" controls width="800" />
+        <audio v-if="audioURL && selectAudio  != null " :src="audioURL" controls />
       </v-col>
     </v-row>
   </div>
@@ -27,7 +47,8 @@ export default {
   name: "Upload",
   data() {
     return {
-      select: null,
+      selectVideo: null,
+      selectAudio: null,
       uploadValue: 0
     };
   },
@@ -43,6 +64,12 @@ export default {
     getvideo(item) {
       let name = item.name.split(".")[0];
       this.$store.dispatch("getVideo", {
+        name: name
+      });
+    },
+    getAudio(item) {
+      let name = item.name.split(".")[0];
+      this.$store.dispatch("getAudio", {
         name: name
       });
     },
@@ -73,20 +100,40 @@ export default {
   },
   computed: {
     videoURL() {
-      if(this.$store.state.mediaRecords.videoBlob) {
-        console.log("nahsdaj");
-        return window.URL.createObjectURL(this.$store.state.mediaRecords.videoBlob);
+      if (this.$store.state.mediaRecords.videoBlob) {
+        return window.URL.createObjectURL(
+          this.$store.state.mediaRecords.videoBlob
+        );
       }
-
-      return '';
+      return "";
     },
-    list() {
-      return this.$store.state.mediaRecords.list;
+    audioURL() {
+      if (this.$store.state.mediaRecords.audioBlob) {
+        return window.URL.createObjectURL(
+          this.$store.state.mediaRecords.audioBlob
+        );
+      }
+      return "";
+    },
+    listVideos() {
+      return this.$store.state.mediaRecords.listVideos;
+    },
+    listAudios() {
+      return this.$store.state.mediaRecords.listAudios;
     }
   },
   created() {
-    if (!this.$store.state.mediaRecords.list) {
-      this.$store.dispatch("getListVideos", { folder: "videos" });
+    if (!this.$store.state.mediaRecords.listVideos) {
+      this.$store.dispatch("getListMedia", {
+        list: "setlistVideos",
+        folder: "videos"
+      });
+    }
+    if (!this.$store.state.mediaRecords.listAudios) {
+      this.$store.dispatch("getListMedia", {
+        list: "setlistAudios",
+        folder: "audios"
+      });
     }
   }
 };

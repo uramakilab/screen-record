@@ -2,14 +2,22 @@ export default {
     state: {
         media: null,
         videoBlob: null,
-        list: null
+        audioBlob:null,
+        listVideos: null,
+        listAudios: null
     },
     mutations: {
         setVideoBlob(state, payload) {
             state.videoBlob = payload;
         },
-        setList(state, payload) {
-            state.list = payload
+        setAudioBlob(state, payload) {
+            state.audioBlob = payload;
+        },
+        setlistVideos(state, payload) {
+            state.listVideos = payload
+        },
+        setlistAudios(state, payload) {
+            state.listAudios = payload
         }
     },
     getters: {
@@ -37,10 +45,21 @@ export default {
                     console.error(err);
                 })
         },
-        getListVideos({ dispatch, commit }, payload) {
+        getAudio({ dispatch, commit }, payload) {
+            payload = Object.assign(payload, { folder: 'audios', extension: 'mp4' });
+
+            dispatch("getObject", payload)
+                .then((blob) => {
+                    commit('setAudioBlob', blob);
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        },
+        getListMedia({ dispatch, commit }, payload) {
             dispatch("getList", payload)
                 .then((list) => {
-                    commit('setList', list);
+                    commit(payload.list, list);
                 })
                 .catch(err => {
                     console.error(err);
