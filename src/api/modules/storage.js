@@ -2,9 +2,28 @@ import firebase from 'firebase';
 
 export default {
     upload: (payload) => {
-        console.log("Payload API", payload)
         var storageRef = firebase.storage().ref();
-        var uploadTask = storageRef.child(`${payload.folder}/${payload.name}.${payload.extension}`).put(payload.media);
+        var mediaRef = storageRef.child(`${payload.folder}/${payload.name}.${payload.extension}`)
+        var newMetadata = {
+            customMetadata: {
+                'title': null,
+                'description': null
+            }
+        }
+
+        var uploadTask = mediaRef.put(payload.media).then(() => {
+            // console.log("meta", payload.meta);
+            if (payload.meta.title.length) {
+                newMetadata.customMetadata.title = payload.meta.title
+            } 
+            if (payload.meta.description.length) {
+                newMetadata.customMetadata.description = payload.meta.description
+            }
+            if (payload.meta.title.length || payload.meta.description.length)
+                mediaRef.updateMetadata(newMetadata).then(() => console.log("Sent metadata"))
+                    .catch(err => console.error(err));
+
+        }).catch(err => console.error(err));
 
         return uploadTask
     },
