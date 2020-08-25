@@ -12,10 +12,9 @@ export default {
         }
 
         var uploadTask = mediaRef.put(payload.media).then(() => {
-            // console.log("meta", payload.meta);
             if (payload.meta.title.length) {
                 newMetadata.customMetadata.title = payload.meta.title
-            } 
+            }
             if (payload.meta.description.length) {
                 newMetadata.customMetadata.description = payload.meta.description
             }
@@ -48,7 +47,9 @@ export default {
         let list = []
         listRef.listAll().then(function (res) {
             res.items.forEach(function (itemRef) {
-                list.push({ name: itemRef.name, path: itemRef.fullPath })
+                itemRef.getMetadata().then((meta) => {
+                    list.push({ name: itemRef.name, path: itemRef.fullPath, meta: meta.customMetadata ? Object.assign({}, meta.customMetadata) : Object.assign({}) })
+                })
             });
         }).catch(function (error) {
             console.error(error)
