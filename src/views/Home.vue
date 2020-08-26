@@ -1,9 +1,15 @@
 <template>
   <div style="background-color: #b9cceb; height: 100%">
     <v-row justify="space-around" style="margin-top: 30px">
+      <Config
+        v-if="dialog"
+        :dialog="dialog"
+        :options="{configWebCam,configAudio,configScreen}"
+        @close="dialog=false"
+      />
       <video width="45%" id="webcam" class="video" muted autoplay></video>
 
-      <video width="45%" id="screen" class="video"  autoplay></video>
+      <video width="45%" id="screen" class="video" autoplay></video>
 
       <audio id="audio" muted></audio>
 
@@ -84,23 +90,45 @@
         </template>
         <span>{{audio ? 'Stop' : 'Start'}} Audio Capture</span>
       </v-tooltip>
+
+      <v-tooltip left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn @click="dialog=true" fab small v-bind="attrs" v-on="on">
+            <v-icon>mdi-cog</v-icon>
+          </v-btn>
+        </template>
+        <span>Configurations</span>
+      </v-tooltip>
     </v-speed-dial>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-
+import Config from "@/components/Config.vue";
 export default {
-  components: {},
+  components: {
+    Config
+  },
   data: () => ({
+    dialog: false,
     recording: false,
     webcam: false,
     screen: false,
     audio: false,
-    options: {
+    configWebCam: {
       video: true,
-      audio: true,
+      audio: true
+    },
+    configScreen: {
+      video: {
+        cursor: "always"
+      }
+    },
+    configAudio: {
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false
+      }
     },
     recordWebCam: null,
     recordScreen: null,
@@ -111,14 +139,15 @@ export default {
     uploadMediaScreen: null,
     uploadMediaWebCam: null,
     uploadMediaAudio: null,
-    fab: false,
+    fab: false
   }),
   methods: {
     startWebCamCapture() {
       this.webcam = true;
+      console.log("this.configWebCam",this.configWebCam)
       navigator.mediaDevices
-        .getUserMedia(this.options)
-        .then((mediaStreamObj) => {
+        .getUserMedia(this.configWebCam)
+        .then(mediaStreamObj => {
           let video = document.getElementById("webcam");
           if ("srcObject" in video) {
             video.srcObject = mediaStreamObj;
@@ -128,7 +157,7 @@ export default {
           this.recordWebCam = new MediaRecorder(mediaStreamObj);
           let recordingWebCam = [];
 
-          this.recordWebCam.ondataavailable = function (ev) {
+          this.recordWebCam.ondataavailable = function(ev) {
             recordingWebCam.push(ev.data);
           };
 
@@ -140,7 +169,7 @@ export default {
             this.mediaWebCam = window.URL.createObjectURL(blob);
           };
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Error:" + err);
         });
     },
@@ -148,14 +177,14 @@ export default {
       this.webcam = false;
       let videoElem = document.getElementById("webcam");
       let tracks = videoElem.srcObject.getTracks();
-      tracks.forEach((track) => track.stop());
+      tracks.forEach(track => track.stop());
       videoElem.srcObject = null;
     },
     startScreenCapture() {
       this.screen = true;
       navigator.mediaDevices
-        .getDisplayMedia(this.options)
-        .then((mediaStreamObj) => {
+        .getDisplayMedia(this.configScreen)
+        .then(mediaStreamObj => {
           let video = document.getElementById("screen");
           if ("srcObject" in video) {
             video.srcObject = mediaStreamObj;
@@ -165,7 +194,7 @@ export default {
           this.recordScreen = new MediaRecorder(mediaStreamObj);
           let recordingScreen = [];
 
-          this.recordScreen.ondataavailable = function (ev) {
+          this.recordScreen.ondataavailable = function(ev) {
             console.log(ev);
             recordingScreen.push(ev.data);
           };
@@ -177,7 +206,7 @@ export default {
             this.mediaScreen = window.URL.createObjectURL(blob);
           };
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Error:" + err);
           return null;
         });
@@ -186,18 +215,14 @@ export default {
       this.screen = false;
       let videoElem = document.getElementById("screen");
       let tracks = videoElem.srcObject.getTracks();
-      tracks.forEach((track) => track.stop());
+      tracks.forEach(track => track.stop());
       videoElem.srcObject = null;
     },
     startAudioCapture() {
       this.audio = true;
-      let audioOptions = {
-        video: false,
-        audio: true,
-      };
       navigator.mediaDevices
-        .getUserMedia(audioOptions)
-        .then((mediaStreamObj) => {
+        .getUserMedia(this.configAudio)
+        .then(mediaStreamObj => {
           let video = document.getElementById("audio");
           if ("srcObject" in video) {
             video.srcObject = mediaStreamObj;
@@ -207,7 +232,7 @@ export default {
           this.recordAudio = new MediaRecorder(mediaStreamObj);
           let recordingAudio = [];
 
-          this.recordAudio.ondataavailable = function (ev) {
+          this.recordAudio.ondataavailable = function(ev) {
             recordingAudio.push(ev.data);
           };
 
@@ -219,7 +244,7 @@ export default {
             this.mediaAudio = window.URL.createObjectURL(blob);
           };
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Error:" + err);
         });
     },
@@ -227,7 +252,7 @@ export default {
       this.audio = false;
       let AudioEle = document.getElementById("audio");
       let tracks = AudioEle.srcObject.getTracks();
-      tracks.forEach((track) => track.stop());
+      tracks.forEach(track => track.stop());
       AudioEle.srcObject = null;
     },
     startRecord() {
@@ -258,33 +283,33 @@ export default {
     },
     submit() {
       if (this.mediaAudio) {
-        console.log("audio")
+        console.log("audio");
         this.$store.dispatch("uploadMedia", {
           media: this.uploadMediaAudio.blob,
           name: this.uploadMediaAudio.name,
-          folder: "audios",
+          folder: "audios"
         });
       }
 
-      if(this.mediaWebCam) {
-        console.log("webcam")
+      if (this.mediaWebCam) {
+        console.log("webcam");
         this.$store.dispatch("uploadMedia", {
           media: this.uploadMediaWebCam.blob,
           name: this.uploadMediaWebCam.name,
-          folder: "videos",
+          folder: "videos"
         });
       }
 
-      if(this.mediaScreen) {
-        console.log("screen")
+      if (this.mediaScreen) {
+        console.log("screen");
         this.$store.dispatch("uploadMedia", {
           media: this.uploadMediaScreen.blob,
           name: this.uploadMediaScreen.name,
-          folder: "videos",
+          folder: "videos"
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
