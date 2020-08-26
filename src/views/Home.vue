@@ -12,16 +12,34 @@
       <video width="45%" id="screen" class="video" autoplay></video>
 
       <audio id="audio" muted></audio>
+    </v-row>
 
-      <!-- Saved Media  -->
-      <video v-if="mediaWebCam" :src="mediaWebCam" width="45%" id="recordWC" class="video" controls></video>
-      <video v-if="mediaScreen" :src="mediaScreen" width="45%" id="record" class="video" controls></video>
-      <audio v-if="mediaAudio" :src="mediaAudio" id="Recordaudio" controls></audio>
+    <v-col>
+      <video v-if="mediaWebCam" :src="mediaWebCam" id="recordWC" width="60%" class="video" controls></video>
+      <v-col v-if="mediaWebCam" class="mx-5">
+        <v-text-field v-model="webcamMeta.title" class="mr-5" label="Title" />
+        <v-textarea v-model="webcamMeta.description" label="Description"></v-textarea>
+      </v-col>
+
+      <video v-if="mediaScreen" :src="mediaScreen" id="record" width="60%" class="video" controls></video>
+      <v-col class="mx-5" v-if="mediaScreen">
+        <v-text-field v-model="screenMeta.title" class="mr-5" label="Title" />
+        <v-textarea v-model="screenMeta.description" label="Description"></v-textarea>
+      </v-col>
+
+      <div class="mb-3" v-if="mediaAudio">
+        <audio :src="mediaAudio" id="Recordaudio" style="width: 60%" controls></audio>
+
+        <v-col class="mx-5">
+          <v-text-field v-model="audioMeta.title" class="mr-5" label="Title" />
+          <v-textarea v-model="audioMeta.description" label="Description"></v-textarea>
+        </v-col>
+      </div>
 
       <v-btn v-if="mediaScreen || mediaAudio || mediaWebCam" @click="submit">
         <v-icon left>mdi-content-save</v-icon>submit
       </v-btn>
-    </v-row>
+    </v-col>
 
     <!-- Speed Dial -->
     <v-speed-dial v-model="fab" fixed class="mr-3" bottom right open-on-hover>
@@ -139,7 +157,19 @@ export default {
     uploadMediaScreen: null,
     uploadMediaWebCam: null,
     uploadMediaAudio: null,
-    fab: false
+    fab: false,
+    webcamMeta: {
+      title: "",
+      description: "",
+    },
+    screenMeta: {
+      title: "",
+      description: "",
+    },
+    audioMeta: {
+      title: "",
+      description: "",
+    },
   }),
   methods: {
     startWebCamCapture() {
@@ -283,29 +313,29 @@ export default {
     },
     submit() {
       if (this.mediaAudio) {
-        console.log("audio");
         this.$store.dispatch("uploadMedia", {
           media: this.uploadMediaAudio.blob,
           name: this.uploadMediaAudio.name,
-          folder: "audios"
+          folder: "audios",
+          meta: Object.assign({}, this.audioMeta),
         });
       }
 
       if (this.mediaWebCam) {
-        console.log("webcam");
         this.$store.dispatch("uploadMedia", {
           media: this.uploadMediaWebCam.blob,
           name: this.uploadMediaWebCam.name,
-          folder: "videos"
+          folder: "videos",
+          meta: Object.assign({}, this.webcamMeta),
         });
       }
 
       if (this.mediaScreen) {
-        console.log("screen");
         this.$store.dispatch("uploadMedia", {
           media: this.uploadMediaScreen.blob,
           name: this.uploadMediaScreen.name,
-          folder: "videos"
+          folder: "videos",
+          meta: Object.assign({}, this.screenMeta),
         });
       }
     }

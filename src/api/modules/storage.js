@@ -2,9 +2,27 @@ import firebase from 'firebase';
 
 export default {
     upload: (payload) => {
-        console.log("Payload API", payload)
         var storageRef = firebase.storage().ref();
-        var uploadTask = storageRef.child(`${payload.folder}/${payload.name}.${payload.extension}`).put(payload.media);
+        var mediaRef = storageRef.child(`${payload.folder}/${payload.name}.${payload.extension}`)
+        var newMetadata = {
+            customMetadata: {
+                'title': null,
+                'description': null
+            }
+        }
+
+        var uploadTask = mediaRef.put(payload.media).then(() => {
+            if (payload.meta.title.length) {
+                newMetadata.customMetadata.title = payload.meta.title
+            }
+            if (payload.meta.description.length) {
+                newMetadata.customMetadata.description = payload.meta.description
+            }
+            if (payload.meta.title.length || payload.meta.description.length)
+                mediaRef.updateMetadata(newMetadata).then(() => console.log("Sent metadata"))
+                    .catch(err => console.error(err));
+
+        }).catch(err => console.error(err));
 
         return uploadTask
     },
@@ -29,7 +47,9 @@ export default {
         let list = []
         listRef.listAll().then(function (res) {
             res.items.forEach(function (itemRef) {
-                list.push({ name: itemRef.name, path: itemRef.fullPath })
+                itemRef.getMetadata().then((meta) => {
+                    list.push({ name: itemRef.name, path: itemRef.fullPath, meta: meta.customMetadata ? Object.assign({}, meta.customMetadata) : Object.assign({}) })
+                })
             });
         }).catch(function (error) {
             console.error(error)
