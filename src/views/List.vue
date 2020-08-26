@@ -39,6 +39,12 @@
           <v-divider v-if="'description' in listVideos[selectVideo].meta || 'title' in listVideos[selectVideo].meta" class="my-5"></v-divider>
         </div>
         <video v-if="videoURL && selectVideo != null" :src="videoURL" controls width="800" />
+
+        <div v-if="audioURL && selectAudio  != null ">
+          <h1 v-if="'title' in listAudios[selectAudio].meta">{{ listAudios[selectAudio].meta.title }}</h1>
+          <div v-if="'description' in listAudios[selectAudio].meta">{{ listAudios[selectAudio].meta.description }}</div>
+          <v-divider v-if="'description' in listAudios[selectAudio].meta || 'title' in listAudios[selectAudio].meta" class="my-5"></v-divider>
+        </div>
         <audio v-if="audioURL && selectAudio  != null " :src="audioURL" controls />
       </v-col>
     </v-row>
