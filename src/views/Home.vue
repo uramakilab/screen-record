@@ -17,6 +17,7 @@
     <v-col>
       <video v-if="mediaWebCam" :src="mediaWebCam" id="recordWC" width="60%" class="video" controls></video>
       <v-col v-if="mediaWebCam" class="mx-5">
+        <a :href="mediaWebCam" download>Download</a>
         <v-text-field v-model="webcamMeta.title" class="mr-5" label="Title" />
         <v-textarea v-model="webcamMeta.description" label="Description"></v-textarea>
       </v-col>
